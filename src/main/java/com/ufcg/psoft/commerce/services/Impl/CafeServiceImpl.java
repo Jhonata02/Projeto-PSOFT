@@ -2,12 +2,16 @@ package com.ufcg.psoft.commerce.services.Impl;
 
 import com.ufcg.psoft.commerce.dto.CafePostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
+import com.ufcg.psoft.commerce.dto.ClienteResponseDTO;
 import com.ufcg.psoft.commerce.exception.CafeNaoExisteException;
+import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.exception.FornecedorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Cafe;
+import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.Fornecedor;
 import com.ufcg.psoft.commerce.repository.CafeRepository;
+import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import com.ufcg.psoft.commerce.repository.FornecedorRepository;
 import com.ufcg.psoft.commerce.services.CafeService;
 import org.modelmapper.ModelMapper;
@@ -26,6 +30,8 @@ public class CafeServiceImpl implements CafeService {
     CafeRepository cafeRepository;
     @Autowired
     FornecedorRepository fornecedorRepository;
+    @Autowired
+    ClienteRepository clienteRepository;
 
     @Override
     public CafeResponseDTO criar(Long idFornecedor, String codigoAcesso, CafePostPutRequestDTO cafePostPutRequestDTO) {
@@ -111,6 +117,24 @@ public class CafeServiceImpl implements CafeService {
 
         cafe.setDisponivel(cafe.isDisponivel() ? false : true);
         cafeRepository.save(cafe);
+
+        if (cafe.isDisponivel() && !cafe.getClientesInteressados().isEmpty()) {
+            exibirMensagem(cafe);
+        }
     }
 
+    private void exibirMensagem(Cafe cafe) {
+        cafe.getClientesInteressados().stream()
+                .sorted((cliente1, cliente2) -> Boolean.compare(cliente2.isPremium(),cliente1.isPremium()))
+                .forEach(cliente -> {
+                    Cliente clienteCompleto = clienteRepository.findById(cliente.getId()).orElseThrow(ClienteNaoExisteException::new);
+
+                    System.out.println(
+                            "\nCliente: " + cliente.getNome() + " Id: " + cliente.getId()
+                                    + "\n"
+                                    + "O cafe: " + cafe.getNome() + " Id: " + cafe.getId()
+                                    + "\nestá disponivel"
+                    );
+                });
+    }
 }

@@ -124,5 +124,6 @@ public class ClienteServiceImpl implements ClienteService {
         cafeRepository.save(cafe);
         cliente.getCafesInteresse().add(cafe);
         clienteRepository.save(cliente);
+
     }
 }
