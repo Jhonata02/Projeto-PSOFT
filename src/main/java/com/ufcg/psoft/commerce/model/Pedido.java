@@ -42,6 +42,7 @@ public class Pedido {
     @JsonProperty("statusPedido")
     private StatusPedido statusPedido;
 
+    @Enumerated(EnumType.STRING)
     @JsonProperty("metodoPagamento")
     private MetodoPagamento metodoPagamento;
 

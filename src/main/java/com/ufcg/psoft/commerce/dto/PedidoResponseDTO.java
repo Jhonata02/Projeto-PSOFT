@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -24,8 +25,11 @@ public class PedidoResponseDTO {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @JsonProperty("itens")
-    private List<ItemPedido> itens;
+    //@JsonProperty("itens")
+    //private List<ItemPedido> itens;
+
+    @JsonProperty("cafes")
+    private List<Cafe> cafes;
 
     @JsonProperty("enderecoDeEntrega")
     private String enderecoDeEntrega;
@@ -45,9 +49,12 @@ public class PedidoResponseDTO {
 
     public PedidoResponseDTO(Pedido pedido) {
         this.id = pedido.getId();
-        this.itens = pedido.getItens();
+        this.cafes = pedido.getItens().stream()
+                .map(itemPedido -> itemPedido.getCafe())
+                .collect(Collectors.toList());
+        //this.itens = pedido.getItens();
         this.enderecoDeEntrega = pedido.getEnderecoDeEntrega();
-        this.valorPedido = pedido.getValorPedido();
+        this.valorPedido = Math.round(pedido.getValorPedido()*100.00)/100.00;
         this.statusPedido = pedido.getStatusPedido();
         this.metodoPagamento = pedido.getMetodoPagamento();
         this.cliente = pedido.getCliente();
