@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class Fornecedor {
     private List<Entregador> entregadores;
 
     @JsonProperty("cafes")
-    @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("fornecedor")
+    @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL)
     private List<Cafe> cafes;
 }
