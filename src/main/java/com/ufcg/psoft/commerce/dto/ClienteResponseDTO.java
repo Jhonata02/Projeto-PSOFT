@@ -3,6 +3,7 @@ package com.ufcg.psoft.commerce.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.model.Pedido;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,6 +38,9 @@ public class ClienteResponseDTO {
     @NotBlank(message = "Plano obrigatório")
     private boolean isPremium;
 
+    @JsonProperty("pedidos")
+    @JsonIgnoreProperties({"cliente"})
+    private List<Pedido> pedidos;
 
 
     public ClienteResponseDTO(Cliente cliente) {
@@ -44,5 +48,6 @@ public class ClienteResponseDTO {
         this.nome = cliente.getNome();
         this.endereco = cliente.getEndereco();
         this.isPremium = cliente.isPremium();
+        this.pedidos = cliente.getPedidos();
     }
 }
