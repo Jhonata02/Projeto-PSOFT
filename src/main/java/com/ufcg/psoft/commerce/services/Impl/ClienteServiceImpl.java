@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.services.Impl;
 
 import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
+import com.ufcg.psoft.commerce.exception.CafeNaoExisteException;
 import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.model.Cafe;
@@ -12,10 +13,8 @@ import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.services.ClienteService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +28,17 @@ public class ClienteServiceImpl implements ClienteService {
     @Autowired
     ModelMapper modelMapper;
 
-    @Override
-    public ClienteResponseDTO alterar(Long id, String codigoAcesso, ClientePostPutRequestDTO clientePostPutRequestDTO) {
+
+    private Cliente verificaClienteValido(Long id, String codigoAcesso) {
         Cliente cliente = clienteRepository.findById(id).orElseThrow(ClienteNaoExisteException::new);
         if (!cliente.getCodigo().equals(codigoAcesso)) {
             throw new CodigoDeAcessoInvalidoException();
         }
+        return cliente;
+    }
+    @Override
+    public ClienteResponseDTO alterar(Long id, String codigoAcesso, ClientePostPutRequestDTO clientePostPutRequestDTO) {
+        Cliente cliente = verificaClienteValido(id,codigoAcesso);
         modelMapper.map(clientePostPutRequestDTO, cliente);
         clienteRepository.save(cliente);
         return modelMapper.map(cliente, ClienteResponseDTO.class);
@@ -110,5 +114,15 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteResponseDTO recuperar(Long id) {
         Cliente cliente = clienteRepository.findById(id).orElseThrow(ClienteNaoExisteException::new);
         return new ClienteResponseDTO(cliente);
+    }
+
+    @Override
+    public void demonstrarInteresseEmCafe(Long id, Long idCafe, String codigoAcesso) {
+        Cliente cliente = verificaClienteValido(id,codigoAcesso);
+        Cafe cafe = cafeRepository.findById(idCafe).orElseThrow(CafeNaoExisteException::new);
+        cafe.getClientesInteressados().add(cliente);
+        cafeRepository.save(cafe);
+        cliente.getCafesInteresse().add(cafe);
+        clienteRepository.save(cliente);
     }
 }

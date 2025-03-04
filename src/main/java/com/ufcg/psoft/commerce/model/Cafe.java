@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @Builder
@@ -56,5 +58,10 @@ public class Cafe {
     @JsonIgnoreProperties("cafes")
     @ManyToOne()
     private Fornecedor fornecedor;
+
+    @JsonProperty("clientesInteressados")
+    @JsonIgnoreProperties("cafesInteresse")
+    @ManyToMany()
+    private List<Cliente> clientesInteressados;
 
 }

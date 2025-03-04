@@ -60,6 +60,18 @@ public class ClienteController {
                 .body(clienteService.criar(clientePostPutRequestDto));
     }
 
+    @PutMapping("{id}/demonstrar-interesse-cafe")
+    public ResponseEntity<?> demonstrarInteresseEmCafe(
+            @PathVariable Long id,
+            @RequestParam Long idCafe,
+            @RequestParam String codigoAcesso) {
+        clienteService.demonstrarInteresseEmCafe(id,idCafe,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Cafe adicionado na lista de interesses");
+    }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarCliente(
             @PathVariable Long id,

@@ -2,11 +2,13 @@ package com.ufcg.psoft.commerce.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ufcg.psoft.commerce.model.Cafe;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.Pedido;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -42,6 +45,9 @@ public class ClienteResponseDTO {
     @JsonIgnoreProperties({"cliente"})
     private List<Pedido> pedidos;
 
+    @JsonProperty("cafesInteresse")
+    @JsonIgnoreProperties("clientesInteressados")
+    private List<Long> cafesInteresse;
 
     public ClienteResponseDTO(Cliente cliente) {
         this.id = cliente.getId();
@@ -49,5 +55,9 @@ public class ClienteResponseDTO {
         this.endereco = cliente.getEndereco();
         this.isPremium = cliente.isPremium();
         this.pedidos = cliente.getPedidos();
+        this.cafesInteresse = cliente.getCafesInteresse()
+                .stream()
+                .map(cafe -> cafe.getId())
+                .collect(Collectors.toList());
     }
 }

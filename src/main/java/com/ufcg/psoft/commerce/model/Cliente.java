@@ -44,4 +44,9 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Pedido> pedidos;
 
+    @JsonProperty("cafesInteresse")
+    @JsonIgnoreProperties("clientesInteressados")
+    @ManyToMany()
+    private List<Cafe> cafesInteresse;
+
 }
