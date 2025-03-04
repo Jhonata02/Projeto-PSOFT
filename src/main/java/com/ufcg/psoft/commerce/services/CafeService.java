@@ -18,4 +18,6 @@ public interface CafeService {
     void remover(Long id, Long idFornecedor, String codigoAcesso);
 
     List<CafeResponseDTO> listarPorNome(String nome);
+
+    void alterarDisponibilidadeCafe(Long id, Long idFornecedor, String codigoAcesso);
 }

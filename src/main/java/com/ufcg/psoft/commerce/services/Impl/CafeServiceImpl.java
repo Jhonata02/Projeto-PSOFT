@@ -43,11 +43,12 @@ public class CafeServiceImpl implements CafeService {
         return modelMapper.map(cafe, CafeResponseDTO.class);
     }
 
-    private void verificaFornecedorValido(Long id, String codigoAcesso) {
+    private Fornecedor verificaFornecedorValido(Long id, String codigoAcesso) {
         Fornecedor fornecedor = fornecedorRepository.findById(id).orElseThrow(FornecedorNaoExisteException::new);
         if (!fornecedor.getCodigo().equals(codigoAcesso)){
             throw new CodigoDeAcessoInvalidoException();
         }
+        return fornecedor;
     }
 
 
@@ -94,4 +95,22 @@ public class CafeServiceImpl implements CafeService {
         fornecedorRepository.save(fornecedor);
         cafeRepository.delete(cafe);
     }
+
+    private Cafe verificaCafePertenceAoFornecedor(Long id, Long idFornecedor, String codigoAcesso) {
+        Cafe cafe = cafeRepository.findById(id).orElseThrow(CafeNaoExisteException::new);
+        if(!cafe.getFornecedor().getId().equals(idFornecedor) || !cafe.getFornecedor().getCodigo().equals(codigoAcesso)) {
+            throw new CodigoDeAcessoInvalidoException();
+        }
+        return cafe;
+    }
+
+    @Override
+    public void alterarDisponibilidadeCafe(Long id, Long idFornecedor, String codigoAcesso) {
+        Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
+        Cafe cafe = verificaCafePertenceAoFornecedor(id,idFornecedor,codigoAcesso);
+
+        cafe.setDisponivel(cafe.isDisponivel() ? false : true);
+        cafeRepository.save(cafe);
+    }
+
 }

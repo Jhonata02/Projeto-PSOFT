@@ -12,8 +12,10 @@ import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.services.ClienteService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,7 +75,8 @@ public class ClienteServiceImpl implements ClienteService {
             cafes = cafes.stream().filter(cafe -> cafe.getPerfilSensorial().toLowerCase().contains(perfilSensorial.toLowerCase())).collect(Collectors.toList());
         }
 
-        return cafes.stream()
+
+        return cafes.stream().sorted((cafe, t1) -> Boolean.compare(t1.isDisponivel(), cafe.isDisponivel()))
                 .map(CafeResponseDTO::new)
                 .collect(Collectors.toList());
     }

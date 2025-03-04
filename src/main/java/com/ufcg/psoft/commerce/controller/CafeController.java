@@ -65,6 +65,18 @@ public class CafeController {
                 .body(cafeService.alterar(idFornecedor,id,codigoAcesso,cafePostPutRequestDTO));
     }
 
+    @PutMapping("/{id}/Alterar-disponibilidade")
+    public ResponseEntity<?> alterarDisponibilidadeCafe(
+            @PathVariable Long id,
+            @RequestParam Long idFornecedor,
+            @RequestParam String codigoAcesso) {
+        cafeService.alterarDisponibilidadeCafe(id,idFornecedor,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Disponibilidade alterada");
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluirCafe(
             @PathVariable Long id,
