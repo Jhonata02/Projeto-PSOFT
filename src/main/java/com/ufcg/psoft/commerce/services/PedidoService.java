@@ -12,7 +12,7 @@ public interface PedidoService {
 
     PedidoResponseDTO recuperar(Long idPedido, Long idCliente, String codigoAcesso);
 
-    void remover(Long idPedido, Long idCliente, String codigoAcesso);
+    //void remover(Long idPedido, Long idCliente, String codigoAcesso);
 
     void confirmarPagamento(Long idPedido, Long idCliente, String codigoAcesso, MetodoPagamento metodoPagamento);
 
@@ -21,5 +21,7 @@ public interface PedidoService {
     void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, Long idEntregador, String codigoAcesso);
 
     void alterarStatusPedidoParaEntregue(Long id, Long idCliente, String codigoAcesso);
+
+    void cancelarPedido(Long id, Long idCliente, String codigoAcesso);
 
 }

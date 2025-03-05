@@ -41,12 +41,12 @@ public class PedidoController {
                 .body(pedidoService.recuperar(id,idCliente,codigoAcesso));
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("{id}/cancelarPedido")
     public ResponseEntity<?> excluirPedido(
             @PathVariable Long id,
             @RequestParam Long idCliente,
             @RequestParam String codigoAcesso) {
-        pedidoService.remover(id,idCliente,codigoAcesso);
+        pedidoService.cancelarPedido(id,idCliente,codigoAcesso);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body("");

@@ -121,12 +121,15 @@ public class PedidoServiceImpl implements PedidoService {
         return new PedidoResponseDTO(pedido);
     }
 
+    /**
     @Override
     public void remover(Long idPedido, Long idCliente, String codigoAcesso) {
         validarCliente(idCliente,codigoAcesso);
         Pedido pedido = verificaPedidoPertenceAoCliente(idPedido,idCliente,codigoAcesso);
         pedidoRepository.delete(pedido);
     }
+
+     */
 
     @Override
     public PedidoResponseDTO alterar(Long idPedido, Long idCliente, String codigoAcesso, PedidoPostPutRequestDTO pedidoPostPutRequestDTO) {
@@ -217,7 +220,22 @@ public class PedidoServiceImpl implements PedidoService {
             }
             pedido.setStatusPedido(StatusPedido.PEDIDO_EM_ENTREGA);
             pedidoRepository.save(pedido);
+            exibeMensagemParaCliente(pedido);
 
+    }
+    private void exibeMensagemParaCliente(Pedido pedido) {
+        System.out.println(
+                "\nCliente: " + pedido.getCliente().getNome()
+                        + " Id: " + pedido.getCliente().getId()
+                        + "\nSeu pedido de numero: " + pedido.getId()
+                        + ", saiu para entrega."
+                        + "\nDetalhes do entregador:"
+                        + "\nNome: " + pedido.getEntregador().getNome()
+                        + "\nVeiculo: " + pedido.getEntregador().getTipoVeiculo()
+                        + "\nPlaca do veiculo: " + pedido.getEntregador().getPlaca()
+                        + "\nCor do veiculo: " + pedido.getEntregador().getCorDoVeiculo()
+
+        );
     }
 
     @Override
@@ -229,6 +247,16 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedido.setStatusPedido(StatusPedido.PEDIDO_ENTREGUE);
         pedidoRepository.save(pedido);
+        exibeMensagemParaFornecedor(pedido);
+    }
+
+    private void exibeMensagemParaFornecedor(Pedido pedido) {
+        System.out.println(
+                "\nFornecedor: " + pedido.getFornecedor().getNome()
+                        + " Id: " + pedido.getFornecedor().getId()
+                        + "\nO pedido de numero: " + pedido.getId()
+                        + ", foi entregue ao cliente!"
+        );
     }
 
     private Pedido verificaPedidoPertenceAoFornecedor(Long idPedido, Long idFornecedor, String codigoAcesso) {
@@ -237,6 +265,16 @@ public class PedidoServiceImpl implements PedidoService {
             throw new RuntimeException("Esse pedido não corresponde ao fornecedor informado");
         }
         return pedido;
+    }
+
+    @Override
+    public void cancelarPedido(Long id, Long idCliente, String codigoAcesso) {
+        validarCliente(idCliente,codigoAcesso);
+        Pedido pedido = verificaPedidoPertenceAoCliente(id,idCliente,codigoAcesso);
+        if(pedido.getStatusPedido() != StatusPedido.PEDIDO_RECEBIDO && pedido.getStatusPedido() != StatusPedido.PREPARACAO) throw new CommerceException("So pode ser cancelado pedidos que não atigiram o status de Pedido pronto");
+
+        pedido.getCliente().getPedidos().remove(pedido);
+        pedidoRepository.delete(pedido);
     }
 
 }
