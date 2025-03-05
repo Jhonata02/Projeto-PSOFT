@@ -43,19 +43,19 @@ public class ClienteResponseDTO {
 
     @JsonProperty("pedidos")
     @JsonIgnoreProperties({"cliente"})
-    private List<Pedido> pedidos;
+    private List<Long> pedidosId;
 
     @JsonProperty("cafesInteresse")
     @JsonIgnoreProperties("clientesInteressados")
-    private List<Long> cafesInteresse;
+    private List<Long> cafesInteresseId;
 
     public ClienteResponseDTO(Cliente cliente) {
         this.id = cliente.getId();
         this.nome = cliente.getNome();
         this.endereco = cliente.getEndereco();
         this.isPremium = cliente.isPremium();
-        this.pedidos = cliente.getPedidos();
-        this.cafesInteresse = cliente.getCafesInteresse()
+        this.pedidosId = cliente.getPedidos().stream().map(pedido -> pedido.getId()).collect(Collectors.toList());
+        this.cafesInteresseId = cliente.getCafesInteresse()
                 .stream()
                 .map(cafe -> cafe.getId())
                 .collect(Collectors.toList());

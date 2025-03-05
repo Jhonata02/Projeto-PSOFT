@@ -63,6 +63,40 @@ public class PedidoController {
                 .body(pedidoService.alterar(id,idCliente,codigoAcesso,pedidoPostPutRequestDTO));
     }
 
+    @PutMapping("{id}/alterar-status-para-pronto")
+    public ResponseEntity<?> alterarStatusPedidoParaPronto(
+            @PathVariable Long id,
+            @RequestParam Long idFornecedor,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoParaPronto(id,idFornecedor,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Status do pedido alterado para PEDIDO_PRONTO");
+    }
+
+    @PutMapping("{id}/alterar-status-para-entrega")
+    public ResponseEntity<?> alterarStatusPedidoParaEntrega(
+            @PathVariable Long id,
+            @RequestParam Long idForncedor,
+            @RequestParam Long idEntregador,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoEmEntrega(id,idForncedor,idEntregador,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Status do pedido alterado para PEDIDO_EM_ENTREGA");
+    }
+
+    @PutMapping("{id}/alterar-status-para-entregue")
+    public ResponseEntity<?> alterarStatusPedidoParaEntregue(
+            @PathVariable Long id,
+            @RequestParam Long idCliente,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoParaEntregue(id, idCliente,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Pedido Entregue!");
+    }
+
     @PutMapping("{id}/confirmar-pagamento")
     public ResponseEntity<?> aprovarPagamento(
             @PathVariable Long id,

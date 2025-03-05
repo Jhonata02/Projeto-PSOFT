@@ -46,4 +46,12 @@ public class Pedido {
     @JsonProperty("metodoPagamento")
     private MetodoPagamento metodoPagamento;
 
+    @JsonProperty("entregador")
+    @ManyToOne()
+    private Entregador entregador;
+
+    @JsonProperty("fornecedor")
+    @ManyToOne()
+    private Fornecedor fornecedor;
+
 }

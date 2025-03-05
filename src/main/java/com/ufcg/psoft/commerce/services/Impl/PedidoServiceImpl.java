@@ -2,15 +2,9 @@ package com.ufcg.psoft.commerce.services.Impl;
 
 import com.ufcg.psoft.commerce.dto.PedidoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.PedidoResponseDTO;
-import com.ufcg.psoft.commerce.exception.CafeNaoExisteException;
-import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
-import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
-import com.ufcg.psoft.commerce.exception.PedidoNaoExisteException;
+import com.ufcg.psoft.commerce.exception.*;
 import com.ufcg.psoft.commerce.model.*;
-import com.ufcg.psoft.commerce.repository.CafeRepository;
-import com.ufcg.psoft.commerce.repository.ClienteRepository;
-import com.ufcg.psoft.commerce.repository.ItemPedidoRepository;
-import com.ufcg.psoft.commerce.repository.PedidoRepository;
+import com.ufcg.psoft.commerce.repository.*;
 import com.ufcg.psoft.commerce.services.PedidoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +24,10 @@ public class PedidoServiceImpl implements PedidoService {
     ClienteRepository clienteRepository;
     @Autowired
     ItemPedidoRepository itemPedidoRepository;
+    @Autowired
+    FornecedorRepository fornecedorRepository;
+    @Autowired
+    EntregadorRepository entregadorRepository;
     @Autowired
     ModelMapper modelMapper;
 
@@ -80,6 +78,7 @@ public class PedidoServiceImpl implements PedidoService {
 
             ItemPedido item = criarItem(cafe, pedido);
             itens.add(item);
+
         }
         return itens;
     }
@@ -93,7 +92,7 @@ public class PedidoServiceImpl implements PedidoService {
     private Pedido verificaPedidoPertenceAoCliente(Long idPedido, Long idCliente, String codigoAcesso) {
         Pedido pedido = pedidoRepository.findById(idPedido).orElseThrow(PedidoNaoExisteException::new);
         if (!pedido.getCliente().getId().equals(idCliente) || !pedido.getCliente().getCodigo().equals(codigoAcesso)) {
-            throw new RuntimeException("Esse pedido não corresponde ao cliente informado");
+            throw new CommerceException("Esse pedido não corresponde ao cliente informado");
         }
         return pedido;
     }
@@ -174,4 +173,70 @@ public class PedidoServiceImpl implements PedidoService {
         pedidoRepository.save(pedido);
 
     }
+
+    private Fornecedor verificaFornecedorValido(Long idFornecedor, String codigoAcesso){
+        Fornecedor fornecedor = fornecedorRepository.findById(idFornecedor).orElseThrow(FornecedorNaoExisteException::new);
+        if(!fornecedor.getCodigo().equals(codigoAcesso)) throw new CodigoDeAcessoInvalidoException();
+        return fornecedor;
+    }
+
+    @Override
+    public void alterarStatusPedidoParaPronto(Long id, Long idFornecedor, String codigoAcesso) {
+        Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(PedidoNaoExisteException::new);
+
+        if(pedido.getStatusPedido() != StatusPedido.PREPARACAO) {
+            throw new RuntimeException("O Status do pedido não é PREPARACAO");
+        }
+        pedido.setStatusPedido(StatusPedido.PEDIDO_PRONTO);
+        pedido.setFornecedor(fornecedor);
+        pedidoRepository.save(pedido);
+        fornecedor.getPedidos().add(pedido);
+        fornecedorRepository.save(fornecedor);
+    }
+
+    @Override
+    public void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, Long idEntregador, String codigoAcesso) {
+            Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
+            Pedido pedido = verificaPedidoPertenceAoFornecedor(id,idFornecedor,codigoAcesso);
+
+            if(pedido.getStatusPedido() != StatusPedido.PEDIDO_PRONTO) {
+                throw new RuntimeException("O Status do pedido não é PREPARACAO");
+            }
+
+            if(!fornecedor.getEntregadores().stream().map(entregador -> entregador.getId()).toList().contains(idEntregador)) {
+                throw new RuntimeException("Esse entregador não trabalha para o fornecedor informado");
+            }
+
+            for (Entregador entregador : fornecedor.getEntregadores()) {
+                if (entregador.getId().equals(idEntregador)) {
+                    pedido.setEntregador(entregador);
+                    entregador.getPedidos().add(pedido);
+                    entregadorRepository.save(entregador);
+                }
+            }
+            pedido.setStatusPedido(StatusPedido.PEDIDO_EM_ENTREGA);
+            pedidoRepository.save(pedido);
+
+    }
+
+    @Override
+    public void alterarStatusPedidoParaEntregue(Long id, Long idCliente, String codigoAcesso) {
+        Pedido pedido = verificaPedidoPertenceAoCliente(id, idCliente, codigoAcesso);
+        validarCliente(idCliente,codigoAcesso);
+
+        if (pedido.getStatusPedido() != StatusPedido.PEDIDO_EM_ENTREGA) throw new CommerceException("Esse pedido não está em entrega.");
+
+        pedido.setStatusPedido(StatusPedido.PEDIDO_ENTREGUE);
+        pedidoRepository.save(pedido);
+    }
+
+    private Pedido verificaPedidoPertenceAoFornecedor(Long idPedido, Long idFornecedor, String codigoAcesso) {
+        Pedido pedido = pedidoRepository.findById(idPedido).orElseThrow(PedidoNaoExisteException::new);
+        if (!pedido.getFornecedor().getId().equals(idFornecedor) || !pedido.getFornecedor().getCodigo().equals(codigoAcesso)) {
+            throw new RuntimeException("Esse pedido não corresponde ao fornecedor informado");
+        }
+        return pedido;
+    }
+
 }

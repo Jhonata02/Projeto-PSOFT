@@ -43,4 +43,8 @@ public class Fornecedor {
     @JsonIgnoreProperties("fornecedor")
     @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL)
     private List<Cafe> cafes;
+
+    @JsonProperty("pedidos")
+    @OneToMany(mappedBy = "fornecedor")
+    private List<Pedido> pedidos;
 }

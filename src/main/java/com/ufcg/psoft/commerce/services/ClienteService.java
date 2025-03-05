@@ -25,4 +25,6 @@ public interface ClienteService {
     void alterarPlano(Long id, String codigoAcesso);
 
     void demonstrarInteresseEmCafe(Long id, Long idCafe, String codigoAcesso);
+
+
 }

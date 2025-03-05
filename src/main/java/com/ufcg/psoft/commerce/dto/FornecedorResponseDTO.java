@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -36,17 +37,17 @@ public class FornecedorResponseDTO {
     private String cnpj;
 
     @JsonProperty("entregadores")
-    private List<Entregador> entregadores;
+    private List<Long> entregadoresId;
 
     @JsonProperty("cafes")
     @JsonIgnoreProperties({"fornecedor"})
-    private List<Cafe> cafes;
+    private List<Long> cafesId;
 
     public FornecedorResponseDTO(Fornecedor fornecedor){
         this.id = fornecedor.getId();
         this.cnpj = fornecedor.getCnpj();
         this.nome = fornecedor.getNome();
-        this.entregadores = fornecedor.getEntregadores();
-        this.cafes = fornecedor.getCafes();
+        this.entregadoresId = fornecedor.getEntregadores().stream().map(entregador -> entregador.getId()).collect(Collectors.toList());
+        this.cafesId = fornecedor.getCafes().stream().map(cafe -> cafe.getId()).collect(Collectors.toList());
     }
 }

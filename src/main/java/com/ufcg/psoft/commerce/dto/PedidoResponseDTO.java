@@ -6,6 +6,7 @@ import com.ufcg.psoft.commerce.model.*;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class PedidoResponseDTO {
     //private List<ItemPedido> itens;
 
     @JsonProperty("cafes")
-    private List<Cafe> cafes;
+    private List<Long> cafesId;
 
     @JsonProperty("enderecoDeEntrega")
     private String enderecoDeEntrega;
@@ -45,19 +46,24 @@ public class PedidoResponseDTO {
 
     @JsonProperty("cliente")
     @JsonIgnoreProperties({"pedidos"})
-    private Cliente cliente;
+    private Long clienteId;
+
+    @JsonProperty("entregador")
+    @JsonIgnoreProperties("pedido")
+    private EntregadorResponseDTO entregador;
 
     public PedidoResponseDTO(Pedido pedido) {
         this.id = pedido.getId();
-        this.cafes = pedido.getItens().stream()
-                .map(itemPedido -> itemPedido.getCafe())
+        this.cafesId = pedido.getItens().stream()
+                .map(itemPedido -> itemPedido.getCafe()).map(cafe -> cafe.getId())
                 .collect(Collectors.toList());
         //this.itens = pedido.getItens();
         this.enderecoDeEntrega = pedido.getEnderecoDeEntrega();
         this.valorPedido = Math.round(pedido.getValorPedido()*100.00)/100.00;
         this.statusPedido = pedido.getStatusPedido();
         this.metodoPagamento = pedido.getMetodoPagamento();
-        this.cliente = pedido.getCliente();
+        this.clienteId = pedido.getCliente().getId();
+        this.entregador = pedido.getEntregador() != null ? new EntregadorResponseDTO(pedido.getEntregador()) : null;
     }
 
 

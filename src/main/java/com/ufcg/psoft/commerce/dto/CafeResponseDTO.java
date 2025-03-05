@@ -68,11 +68,11 @@ public class CafeResponseDTO {
     @JsonProperty("fornecedor")
     @JsonIgnoreProperties({"cafes"})
     @NotNull()
-    private Fornecedor fornecedor;
+    private Long fornecedorId;
 
     @JsonProperty("clientesInteressados")
     @JsonIgnoreProperties("cafesInteresse")
-    private List<Long> clientesInteressados;
+    private List<Long> clientesInteressadosId;
 
     public CafeResponseDTO(Cafe cafe) {
         this.id = cafe.getId();
@@ -84,8 +84,8 @@ public class CafeResponseDTO {
         this.preco = cafe.getPreco();
         this.tamanhoEmbalagem = cafe.getTamanhoEmbalagem();
         this.tipo = cafe.getTipo();
-        this.fornecedor = cafe.getFornecedor();
-        this.clientesInteressados = cafe.getClientesInteressados()
+        this.fornecedorId = cafe.getFornecedor().getId();
+        this.clientesInteressadosId = cafe.getClientesInteressados()
                 .stream()
                 .map(cliente -> cliente.getId())
                 .collect(Collectors.toList());
