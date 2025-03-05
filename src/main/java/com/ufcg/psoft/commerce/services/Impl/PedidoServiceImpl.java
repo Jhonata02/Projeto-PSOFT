@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoServiceImpl implements PedidoService {
@@ -198,8 +200,17 @@ public class PedidoServiceImpl implements PedidoService {
         fornecedorRepository.save(fornecedor);
     }
 
+    private void exibeMensagemNenhumEntregadorDisponivel(Pedido pedido) {
+        System.out.println(
+                "\nCliente: " + pedido.getCliente().getNome()
+                        + " Id: " + pedido.getCliente().getId()
+                        + "\nSeu pedido de numero: " + pedido.getId()
+                        + ", não saiu para entrega, pois não tem entregadores disponiveis no momento."
+        );
+    }
+
     @Override
-    public void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, Long idEntregador, String codigoAcesso) {
+    public void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, String codigoAcesso) {
             Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
             Pedido pedido = verificaPedidoPertenceAoFornecedor(id,idFornecedor,codigoAcesso);
 
@@ -207,17 +218,23 @@ public class PedidoServiceImpl implements PedidoService {
                 throw new RuntimeException("O Status do pedido não é PREPARACAO");
             }
 
-            if(!fornecedor.getEntregadores().stream().map(entregador -> entregador.getId()).toList().contains(idEntregador)) {
-                throw new RuntimeException("Esse entregador não trabalha para o fornecedor informado");
+
+            List<Entregador> entregadoresDisponiveis = fornecedor.getEntregadores().stream()
+                    .filter(entregador -> entregador.getStatusEntregador() == StatusEntregador.ATIVO)
+                    .collect(Collectors.toList());
+
+            if (entregadoresDisponiveis.isEmpty()) {
+                exibeMensagemNenhumEntregadorDisponivel(pedido);
+                throw new CommerceException("Nenhum entregador disponivel");
             }
 
-            for (Entregador entregador : fornecedor.getEntregadores()) {
-                if (entregador.getId().equals(idEntregador)) {
-                    pedido.setEntregador(entregador);
-                    entregador.getPedidos().add(pedido);
-                    entregadorRepository.save(entregador);
-                }
-            }
+            Entregador entregadorEscolhido = entregadoresDisponiveis.stream()
+                    .min(Comparator.comparingInt(entregador -> entregador.getPedidos().size())).orElseThrow(CommerceException::new);
+
+            pedido.setEntregador(entregadorEscolhido);
+            entregadorEscolhido.getPedidos().add(pedido);
+            entregadorRepository.save(entregadorEscolhido);
+
             pedido.setStatusPedido(StatusPedido.PEDIDO_EM_ENTREGA);
             pedidoRepository.save(pedido);
             exibeMensagemParaCliente(pedido);

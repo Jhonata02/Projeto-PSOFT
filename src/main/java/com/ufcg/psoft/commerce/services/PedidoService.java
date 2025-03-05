@@ -18,7 +18,7 @@ public interface PedidoService {
 
     void alterarStatusPedidoParaPronto(Long id, Long idFornecedor, String codigoAcesso);
 
-    void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, Long idEntregador, String codigoAcesso);
+    void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, String codigoAcesso);
 
     void alterarStatusPedidoParaEntregue(Long id, Long idCliente, String codigoAcesso);
 

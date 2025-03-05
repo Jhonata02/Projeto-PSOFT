@@ -78,9 +78,8 @@ public class PedidoController {
     public ResponseEntity<?> alterarStatusPedidoParaEntrega(
             @PathVariable Long id,
             @RequestParam Long idForncedor,
-            @RequestParam Long idEntregador,
             @RequestParam String codigoAcesso) {
-        pedidoService.alterarStatusPedidoEmEntrega(id,idForncedor,idEntregador,codigoAcesso);
+        pedidoService.alterarStatusPedidoEmEntrega(id,idForncedor,codigoAcesso);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("Status do pedido alterado para PEDIDO_EM_ENTREGA");
