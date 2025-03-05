@@ -1,10 +1,14 @@
 package com.ufcg.psoft.commerce.services.Impl;
 
 import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
+import com.ufcg.psoft.commerce.dto.PedidoResponseDTO;
 import com.ufcg.psoft.commerce.exception.CafeNaoExisteException;
 import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
+import com.ufcg.psoft.commerce.exception.CommerceException;
 import com.ufcg.psoft.commerce.model.Cafe;
+import com.ufcg.psoft.commerce.model.Pedido;
+import com.ufcg.psoft.commerce.model.StatusPedido;
 import com.ufcg.psoft.commerce.repository.CafeRepository;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
@@ -15,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,5 +130,48 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.getCafesInteresse().add(cafe);
         clienteRepository.save(cliente);
 
+    }
+
+    private Pedido recuperarPedidoEspecificoDoCliente(Cliente cliente, Long idPedido) {
+        if (!cliente.getPedidos().stream()
+                .map(pedido -> pedido.getId())
+                .collect(Collectors.toList())
+                .contains(idPedido)) {
+            throw new CommerceException("Esse pedido não pertence ao cliente");
+        }
+        Pedido pedido = cliente.getPedidos().stream().filter(pedido1 -> pedido1.getId().equals(idPedido)).findFirst().orElse(null);
+        return  pedido;
+    }
+
+    @Override
+    public PedidoResponseDTO exibirPedidoEspecifico(Long idPedido, Long idCliente, String codigoAcesso) {
+        Cliente cliente = verificaClienteValido(idCliente,codigoAcesso);
+        Pedido pedido = recuperarPedidoEspecificoDoCliente(cliente,idPedido);
+
+        return new PedidoResponseDTO(pedido);
+    }
+
+    private List<PedidoResponseDTO> exibirHistoricoPedidos(Cliente cliente) {
+        return cliente.getPedidos().stream()
+                .sorted(Comparator
+                        .comparing((Pedido pedido) -> pedido.getStatusPedido() == StatusPedido.PEDIDO_ENTREGUE)
+                        .thenComparing(Pedido::getId, Comparator.reverseOrder()))
+                .map(p -> new PedidoResponseDTO(p)).toList();
+    }
+
+    @Override
+    public List<PedidoResponseDTO> exibirHistoricoPedidos(Long id, String codigoAcesso) {
+        Cliente cliente = verificaClienteValido(id, codigoAcesso);
+        return exibirHistoricoPedidos(cliente);
+    }
+
+    @Override
+    public List<PedidoResponseDTO> exibirHistoricoPedidosComFiltro(Long id, String codigoAcesso, StatusPedido statusPedido) {
+        Cliente cliente = verificaClienteValido(id, codigoAcesso);
+        return cliente.getPedidos().stream()
+                .filter(pedido -> pedido.getStatusPedido() == statusPedido) // Filtra pelo status desejado
+                .sorted(Comparator.comparing(Pedido::getId, Comparator.reverseOrder()))// Ordena do mais recente para o mais antigo
+                .map(pedido -> new PedidoResponseDTO(pedido))
+                .toList();
     }
 }

@@ -3,6 +3,8 @@ package com.ufcg.psoft.commerce.services;
 import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.ClienteResponseDTO;
+import com.ufcg.psoft.commerce.dto.PedidoResponseDTO;
+import com.ufcg.psoft.commerce.model.StatusPedido;
 
 import java.util.List;
 
@@ -26,5 +28,9 @@ public interface ClienteService {
 
     void demonstrarInteresseEmCafe(Long id, Long idCafe, String codigoAcesso);
 
+    PedidoResponseDTO exibirPedidoEspecifico(Long idPedido, Long idCliente, String codigoAcesso);
 
+    List<PedidoResponseDTO> exibirHistoricoPedidosComFiltro(Long id, String codigoAcesso, StatusPedido statusPedido);
+
+    List<PedidoResponseDTO> exibirHistoricoPedidos(Long id, String codigoAcesso);
 }

@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.model.StatusPedido;
 import com.ufcg.psoft.commerce.services.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,35 @@ public class ClienteController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(clienteService.exibirCatalogo(id,tipo,origem,perfilSensorial));
+    }
+
+    @GetMapping("/{id}/exibir-pedido-especifico")
+    public ResponseEntity<?> exibirPedidoEspecifico(
+            @PathVariable Long id,
+            @RequestParam Long idPedido,
+            @RequestParam String codigoAcesso) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clienteService.exibirPedidoEspecifico(idPedido, id, codigoAcesso));
+    }
+
+    @GetMapping("/{id}exibir-historico-de-pediddos")
+    public ResponseEntity<?> exibirHistoricoPedidos(
+            @PathVariable Long id,
+            @RequestParam String codigoAcesso){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clienteService.exibirHistoricoPedidos(id,codigoAcesso));
+    }
+
+    @GetMapping("/{id}exibir-historico-de-pediddos-Status")
+    public ResponseEntity<?> exibirHistoricoPedidosStatus(
+            @PathVariable Long id,
+            @RequestParam String codigoAcesso,
+            @RequestParam StatusPedido statusPedido) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clienteService.exibirHistoricoPedidosComFiltro(id,codigoAcesso,statusPedido));
     }
 
     @PostMapping()
