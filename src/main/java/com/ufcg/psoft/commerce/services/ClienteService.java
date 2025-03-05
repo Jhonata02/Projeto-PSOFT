@@ -4,7 +4,7 @@ import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.ClienteResponseDTO;
 import com.ufcg.psoft.commerce.dto.PedidoResponseDTO;
-import com.ufcg.psoft.commerce.model.StatusPedido;
+import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 
 import java.util.List;
 

@@ -7,7 +7,7 @@ import com.ufcg.psoft.commerce.exception.EntregadorNaoExisteException;
 import com.ufcg.psoft.commerce.exception.FornecedorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Fornecedor;
-import com.ufcg.psoft.commerce.model.StatusEntregador;
+import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import com.ufcg.psoft.commerce.repository.FornecedorRepository;
 import com.ufcg.psoft.commerce.services.FornecedorService;

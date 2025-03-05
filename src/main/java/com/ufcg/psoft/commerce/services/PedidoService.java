@@ -2,7 +2,7 @@ package com.ufcg.psoft.commerce.services;
 
 import com.ufcg.psoft.commerce.dto.PedidoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.PedidoResponseDTO;
-import com.ufcg.psoft.commerce.model.MetodoPagamento;
+import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 
 public interface PedidoService {
 

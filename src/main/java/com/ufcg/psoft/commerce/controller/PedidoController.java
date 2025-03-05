@@ -1,7 +1,7 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.PedidoPostPutRequestDTO;
-import com.ufcg.psoft.commerce.model.MetodoPagamento;
+import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.services.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

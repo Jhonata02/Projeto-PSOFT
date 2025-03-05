@@ -1,7 +1,7 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
-import com.ufcg.psoft.commerce.model.StatusPedido;
+import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 import com.ufcg.psoft.commerce.services.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

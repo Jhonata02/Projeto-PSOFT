@@ -2,6 +2,8 @@ package com.ufcg.psoft.commerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
+import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

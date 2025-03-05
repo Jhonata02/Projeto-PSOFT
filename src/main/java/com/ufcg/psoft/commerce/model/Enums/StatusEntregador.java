@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.model;
+package com.ufcg.psoft.commerce.model.Enums;
 
 public enum StatusEntregador {
     DESCANSO,

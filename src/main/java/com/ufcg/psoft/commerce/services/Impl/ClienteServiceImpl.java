@@ -8,7 +8,7 @@ import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.exception.CommerceException;
 import com.ufcg.psoft.commerce.model.Cafe;
 import com.ufcg.psoft.commerce.model.Pedido;
-import com.ufcg.psoft.commerce.model.StatusPedido;
+import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 import com.ufcg.psoft.commerce.repository.CafeRepository;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;

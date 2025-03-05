@@ -5,7 +5,7 @@ import com.ufcg.psoft.commerce.dto.EntregadorResponseDTO;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.exception.EntregadorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Entregador;
-import com.ufcg.psoft.commerce.model.StatusEntregador;
+import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import com.ufcg.psoft.commerce.services.EntregadorService;
 import org.modelmapper.ModelMapper;
