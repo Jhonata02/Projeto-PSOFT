@@ -7,6 +7,7 @@ import com.ufcg.psoft.commerce.exception.EntregadorNaoExisteException;
 import com.ufcg.psoft.commerce.exception.FornecedorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Fornecedor;
+import com.ufcg.psoft.commerce.model.StatusEntregador;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import com.ufcg.psoft.commerce.repository.FornecedorRepository;
 import com.ufcg.psoft.commerce.services.FornecedorService;
@@ -66,6 +67,8 @@ public class FornecedorServiceImpl implements FornecedorService {
         }
         fornecedor.getEntregadores().add(entregador);
         fornecedorRepository.save(fornecedor);
+        entregador.setStatusEntregador(StatusEntregador.DESCANSO);
+        entregadorRepository.save(entregador);
     }
 
     /** public String rejeitarEntregador(Long idFornecedor, Long idEntregador, String codigoAcesso) {

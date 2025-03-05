@@ -5,6 +5,7 @@ import com.ufcg.psoft.commerce.dto.EntregadorResponseDTO;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.exception.EntregadorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Entregador;
+import com.ufcg.psoft.commerce.model.StatusEntregador;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import com.ufcg.psoft.commerce.services.EntregadorService;
 import org.modelmapper.ModelMapper;
@@ -22,12 +23,17 @@ public class EntregadorServiceImpl implements EntregadorService {
     @Autowired
     ModelMapper modelMapper;
 
-    @Override
-    public EntregadorResponseDTO alterar(Long id, String codigoAcesso, EntregadorPostPutRequestDTO entregadorPostPutRequestDTO) {
+    private Entregador verificaEntregadorValido(Long id, String codigoAcesso) {
         Entregador entregador = entregadorRepository.findById(id).orElseThrow(EntregadorNaoExisteException::new);
         if (!entregador.getCodigo().equals(codigoAcesso)) {
             throw new CodigoDeAcessoInvalidoException();
         }
+        return entregador;
+    }
+
+    @Override
+    public EntregadorResponseDTO alterar(Long id, String codigoAcesso, EntregadorPostPutRequestDTO entregadorPostPutRequestDTO) {
+        Entregador entregador = verificaEntregadorValido(id, codigoAcesso);
         modelMapper.map(entregadorPostPutRequestDTO, entregador);
         entregadorRepository.save(entregador);
         return modelMapper.map(entregador, EntregadorResponseDTO.class);
@@ -42,10 +48,7 @@ public class EntregadorServiceImpl implements EntregadorService {
 
     @Override
     public void remover(Long id, String codigoAcesso) {
-        Entregador entregador = entregadorRepository.findById(id).orElseThrow(EntregadorNaoExisteException::new);
-        if(!entregador.getCodigo().equals(codigoAcesso)) {
-            throw new CodigoDeAcessoInvalidoException();
-        }
+        Entregador entregador = verificaEntregadorValido(id, codigoAcesso);
         entregadorRepository.delete(entregador);
     }
 
@@ -69,5 +72,14 @@ public class EntregadorServiceImpl implements EntregadorService {
     public EntregadorResponseDTO recuperar(Long id) {
         Entregador entregador = entregadorRepository.findById(id).orElseThrow(EntregadorNaoExisteException::new);
         return new EntregadorResponseDTO(entregador);
+    }
+
+    @Override
+    public void alterarStatus(Long id, String codigoAcesso) {
+        Entregador entregador = verificaEntregadorValido(id,codigoAcesso);
+
+        entregador.setStatusEntregador(entregador.getStatusEntregador() == StatusEntregador.ATIVO ? StatusEntregador.DESCANSO : StatusEntregador.ATIVO);
+
+        entregadorRepository.save(entregador);
     }
 }

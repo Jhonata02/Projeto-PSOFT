@@ -47,4 +47,8 @@ public class Entregador {
     @JsonIgnoreProperties("entregador")
     @OneToMany(mappedBy = "entregador")
     private List<Pedido> pedidos;
+
+    @JsonProperty("status")
+    @Enumerated(EnumType.STRING)
+    private StatusEntregador statusEntregador;
 }

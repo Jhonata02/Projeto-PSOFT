@@ -59,6 +59,16 @@ public class EntregadorController {
                 .body(entregadorService.alterar(id, codigo, entregadorPostPutRequestDTO));
     }
 
+    @PutMapping("/{id}/alterar-status")
+    public ResponseEntity<?> alterarStatusEntregador(
+            @PathVariable Long id,
+            @RequestParam String codigoAcesso) {
+        entregadorService.alterarStatus(id,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Status alterado!");
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluirEntregador(
             @PathVariable Long id,

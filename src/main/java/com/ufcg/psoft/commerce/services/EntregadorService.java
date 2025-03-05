@@ -18,4 +18,6 @@ public interface EntregadorService {
     void remover(Long id, String codigoAcesso);
 
     List<EntregadorResponseDTO> listarPorNome(String nome);
+
+    void alterarStatus(Long id, String codigoAcesso);
 }

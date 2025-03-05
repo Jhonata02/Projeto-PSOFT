@@ -3,6 +3,7 @@ package com.ufcg.psoft.commerce.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Pedido;
+import com.ufcg.psoft.commerce.model.StatusEntregador;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,6 +44,9 @@ public class EntregadorResponseDTO {
     @NotBlank(message = "Cor do veiculo obrigatorio")
     private String corDoVeiculo;
 
+    @JsonProperty("status")
+    private StatusEntregador statusEntregador;
+
     //@JsonProperty("pedidos")
     //private List<Long> pedidosId;
 
@@ -52,6 +56,7 @@ public class EntregadorResponseDTO {
         this.placa = entregador.getPlaca();
         this.tipoVeiculo = entregador.getTipoVeiculo();
         this.corDoVeiculo = entregador.getCorDoVeiculo();
+        this.statusEntregador = entregador.getStatusEntregador();
         //this.pedidosId = entregador.getPedidos().stream().map(pedido -> pedido.getId()).collect(Collectors.toList());
     }
 }
