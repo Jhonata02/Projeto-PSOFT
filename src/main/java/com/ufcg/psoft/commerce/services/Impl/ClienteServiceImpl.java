@@ -125,6 +125,7 @@ public class ClienteServiceImpl implements ClienteService {
     public void demonstrarInteresseEmCafe(Long id, Long idCafe, String codigoAcesso) {
         Cliente cliente = verificaClienteValido(id,codigoAcesso);
         Cafe cafe = cafeRepository.findById(idCafe).orElseThrow(CafeNaoExisteException::new);
+        if (cafe.isDisponivel()) throw new CommerceException("Só pode demonstrar interesse em cafés indisponiveis");
         cafe.getClientesInteressados().add(cliente);
         cafeRepository.save(cafe);
         cliente.getCafesInteresse().add(cafe);
