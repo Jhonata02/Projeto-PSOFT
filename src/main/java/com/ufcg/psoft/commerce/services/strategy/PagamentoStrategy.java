@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.services;
+package com.ufcg.psoft.commerce.services.strategy;
 
 import com.ufcg.psoft.commerce.model.Pedido;
 
