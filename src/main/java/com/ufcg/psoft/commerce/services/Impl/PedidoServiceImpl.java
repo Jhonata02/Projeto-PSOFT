@@ -7,7 +7,9 @@ import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
-import com.ufcg.psoft.commerce.services.PagamentoStrategy;
+import com.ufcg.psoft.commerce.services.state.PedidoRecebido;
+import com.ufcg.psoft.commerce.services.state.StateStatusDoPedido;
+import com.ufcg.psoft.commerce.services.strategy.PagamentoStrategy;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoCredito;
 import com.ufcg.psoft.commerce.repository.*;
 import com.ufcg.psoft.commerce.services.PedidoService;
@@ -47,6 +49,8 @@ public class PedidoServiceImpl implements PedidoService {
             MetodoPagamento.DEBITO, new PagamentoDebito()
     );
 
+    private StateStatusDoPedido estadoDoPedido = new PedidoRecebido();
+
     private ItemPedido criarItem(Cafe cafe, Pedido pedido) {
         ItemPedido item = new ItemPedido();
         item.setPedido(pedido);
@@ -56,6 +60,10 @@ public class PedidoServiceImpl implements PedidoService {
 
         return item;
 
+    }
+
+    public void setEstadoDoPedido(StateStatusDoPedido estado){
+        this.estadoDoPedido = estado;
     }
 
     private Pedido criarPedido(Cliente cliente, String endereco) {
@@ -175,7 +183,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         mapPagamentoStrategy.get(metodoPagamento).processaPagamento(pedido);
 
-        pedido.setStatusPedido(StatusPedido.PREPARACAO);
+        this.estadoDoPedido.alterarStatus(pedido,this);
         pedidoRepository.save(pedido);
 
     }
@@ -191,10 +199,8 @@ public class PedidoServiceImpl implements PedidoService {
         Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
         Pedido pedido = pedidoRepository.findById(id).orElseThrow(PedidoNaoExisteException::new);
 
-        if(pedido.getStatusPedido() != StatusPedido.PREPARACAO) {
-            throw new RuntimeException("O Status do pedido não é PREPARACAO");
-        }
-        pedido.setStatusPedido(StatusPedido.PEDIDO_PRONTO);
+        this.estadoDoPedido.alterarStatus(pedido,this);
+
         pedido.setFornecedor(fornecedor);
         pedidoRepository.save(pedido);
         fornecedor.getPedidos().add(pedido);
@@ -215,11 +221,6 @@ public class PedidoServiceImpl implements PedidoService {
             Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
             Pedido pedido = verificaPedidoPertenceAoFornecedor(id,idFornecedor,codigoAcesso);
 
-            if(pedido.getStatusPedido() != StatusPedido.PEDIDO_PRONTO) {
-                throw new RuntimeException("O Status do pedido não é PREPARACAO");
-            }
-
-
             List<Entregador> entregadoresDisponiveis = fornecedor.getEntregadores().stream()
                     .filter(entregador -> entregador.getStatusEntregador() == StatusEntregador.ATIVO)
                     .collect(Collectors.toList());
@@ -232,11 +233,11 @@ public class PedidoServiceImpl implements PedidoService {
             Entregador entregadorEscolhido = entregadoresDisponiveis.stream()
                     .min(Comparator.comparingInt(entregador -> entregador.getPedidos().size())).orElseThrow(CommerceException::new);
 
+            this.estadoDoPedido.alterarStatus(pedido,this);
+
             pedido.setEntregador(entregadorEscolhido);
             entregadorEscolhido.getPedidos().add(pedido);
             entregadorRepository.save(entregadorEscolhido);
-
-            pedido.setStatusPedido(StatusPedido.PEDIDO_EM_ENTREGA);
             pedidoRepository.save(pedido);
             exibeMensagemParaCliente(pedido);
 
@@ -261,9 +262,8 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = verificaPedidoPertenceAoCliente(id, idCliente, codigoAcesso);
         validarCliente(idCliente,codigoAcesso);
 
-        if (pedido.getStatusPedido() != StatusPedido.PEDIDO_EM_ENTREGA) throw new CommerceException("Esse pedido não está em entrega.");
+        this.estadoDoPedido.alterarStatus(pedido,this);
 
-        pedido.setStatusPedido(StatusPedido.PEDIDO_ENTREGUE);
         pedidoRepository.save(pedido);
         exibeMensagemParaFornecedor(pedido);
     }
