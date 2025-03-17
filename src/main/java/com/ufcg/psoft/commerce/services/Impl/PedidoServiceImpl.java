@@ -7,8 +7,12 @@ import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
+import com.ufcg.psoft.commerce.services.PagamentoStrategy;
+import com.ufcg.psoft.commerce.services.strategy.PagamentoCredito;
 import com.ufcg.psoft.commerce.repository.*;
 import com.ufcg.psoft.commerce.services.PedidoService;
+import com.ufcg.psoft.commerce.services.strategy.PagamentoDebito;
+import com.ufcg.psoft.commerce.services.strategy.PagamentoPix;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +40,12 @@ public class PedidoServiceImpl implements PedidoService {
     EntregadorRepository entregadorRepository;
     @Autowired
     ModelMapper modelMapper;
+
+    private final Map<MetodoPagamento, PagamentoStrategy> mapPagamentoStrategy = Map.of(
+            MetodoPagamento.CREDITO, new PagamentoCredito(),
+            MetodoPagamento.PIX, new PagamentoPix(),
+            MetodoPagamento.DEBITO, new PagamentoDebito()
+    );
 
     private ItemPedido criarItem(Cafe cafe, Pedido pedido) {
         ItemPedido item = new ItemPedido();
@@ -161,22 +172,9 @@ public class PedidoServiceImpl implements PedidoService {
         validarCliente(idCliente,codigoAcesso);
 
         Pedido pedido = verificaPedidoPertenceAoCliente(idPedido,idCliente,codigoAcesso);
-        if (pedido.getMetodoPagamento() != null) {
-            throw new RuntimeException("O pedido ja foi pago");
-        }
 
-        if (metodoPagamento == MetodoPagamento.CREDITO) {
-            pedido.setMetodoPagamento(MetodoPagamento.CREDITO);
-        }
+        mapPagamentoStrategy.get(metodoPagamento).processaPagamento(pedido);
 
-        if (metodoPagamento == MetodoPagamento.DEBITO) {
-            pedido.setMetodoPagamento(MetodoPagamento.DEBITO);
-            pedido.setValorPedido(pedido.getValorPedido()*0.975);
-        }
-        if (metodoPagamento == MetodoPagamento.PIX) {
-            pedido.setMetodoPagamento(MetodoPagamento.PIX);
-            pedido.setValorPedido(pedido.getValorPedido()*0.95);
-        }
         pedido.setStatusPedido(StatusPedido.PREPARACAO);
         pedidoRepository.save(pedido);
 
