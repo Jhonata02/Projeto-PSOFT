@@ -1,7 +1,10 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.FornecedorPostPutRequestDTO;
+import com.ufcg.psoft.commerce.model.Cafe;
+import com.ufcg.psoft.commerce.services.CafeService;
 import com.ufcg.psoft.commerce.services.FornecedorService;
+import com.ufcg.psoft.commerce.services.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,10 @@ import org.springframework.web.bind.annotation.*;
 public class FornecedorController {
     @Autowired
     FornecedorService fornecedorService;
+    @Autowired
+    PedidoService pedidoService;
+    @Autowired
+    CafeService cafeService;
 
     @PostMapping()
     public ResponseEntity<?> criarFornecedor(
@@ -72,6 +79,39 @@ public class FornecedorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(fornecedorService.recuperar(id));
+    }
+
+    @PutMapping("/{id}/Alterar-disponibilidade-cafe")
+    public ResponseEntity<?> alterarDisponibilidadeCafe(
+            @PathVariable Long id,
+            @RequestParam Long idFornecedor,
+            @RequestParam String codigoAcesso) {
+        cafeService.alterarDisponibilidadeCafe(id,idFornecedor,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Disponibilidade alterada");
+    }
+
+    @PutMapping("{id}/alterar-status-pedido-para-pronto")
+    public ResponseEntity<?> alterarStatusPedidoParaPronto(
+            @PathVariable Long id,
+            @RequestParam Long idFornecedor,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoParaPronto(id,idFornecedor,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Status do pedido alterado para PEDIDO_PRONTO");
+    }
+
+    @PutMapping("{id}/alterar-status-pedido-para-entrega")
+    public ResponseEntity<?> alterarStatusPedidoParaEntrega(
+            @PathVariable Long id,
+            @RequestParam Long idForncedor,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoEmEntrega(id,idForncedor,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Status do pedido alterado para PEDIDO_EM_ENTREGA");
     }
 }
 

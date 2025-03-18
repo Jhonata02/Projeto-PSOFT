@@ -1,8 +1,10 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 import com.ufcg.psoft.commerce.services.ClienteService;
+import com.ufcg.psoft.commerce.services.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,8 @@ public class ClienteController {
 
     @Autowired
     ClienteService clienteService;
+    @Autowired
+    PedidoService pedidoService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> recuperarCliente(
@@ -127,6 +131,40 @@ public class ClienteController {
             @PathVariable Long id,
             @RequestParam String codigo) {
         clienteService.remover(id, codigo);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body("");
+    }
+
+    @PutMapping("{id}/confirmar-pagamento-pedido")
+    public ResponseEntity<?> aprovarPagamento(
+            @PathVariable Long id,
+            @RequestParam Long idCLiente,
+            @RequestParam String codigoAcesso,
+            @RequestParam MetodoPagamento metodoPagamento) {
+        pedidoService.confirmarPagamento(id,idCLiente,codigoAcesso,metodoPagamento);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("");
+    }
+
+    @PutMapping("{id}/confirmar-entrega")
+    public ResponseEntity<?> alterarStatusPedidoParaEntregue(
+            @PathVariable Long id,
+            @RequestParam Long idCliente,
+            @RequestParam String codigoAcesso) {
+        pedidoService.alterarStatusPedidoParaEntregue(id, idCliente,codigoAcesso);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Pedido Entregue!");
+    }
+
+    @DeleteMapping("{id}/cancelarPedido")
+    public ResponseEntity<?> excluirPedido(
+            @PathVariable Long id,
+            @RequestParam Long idCliente,
+            @RequestParam String codigoAcesso) {
+        pedidoService.cancelarPedido(id,idCliente,codigoAcesso);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body("");
