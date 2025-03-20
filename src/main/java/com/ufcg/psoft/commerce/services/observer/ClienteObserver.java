@@ -1,7 +1,8 @@
 package com.ufcg.psoft.commerce.services.observer;
 
 import com.ufcg.psoft.commerce.model.Cafe;
-import com.ufcg.psoft.commerce.model.Pedido;
+import com.ufcg.psoft.commerce.services.observer.events.EventNenhumEntregadorDisponivel;
+import com.ufcg.psoft.commerce.services.observer.events.EventPedidoSaiuParaEntrega;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -39,27 +40,27 @@ public class ClienteObserver extends ObserverAdapter {
     }
 
     @Override
-    public void notificaNenhumEntregadorDisponivelParaEntrega(Pedido pedido) {
+    public void notificaNenhumEntregadorDisponivelParaEntrega(EventNenhumEntregadorDisponivel event) {
         System.out.println(
-                "\nCliente: " + pedido.getCliente().getNome()
-                        + " Id: " + pedido.getCliente().getId()
-                        + "\nSeu pedido de numero: " + pedido.getId()
+                "\nCliente: " + event.getNomeDoCliente()
+                        + " Id: " + event.getIdCliente()
+                        + "\nSeu pedido de numero: " + event.getIdPedido()
                         + ", não saiu para entrega, pois não tem entregadores disponiveis no momento."
         );
     }
 
     @Override
-    public void notificaPedidoSaiuParaEntrega(Pedido pedido) {
+    public void notificaPedidoSaiuParaEntrega(EventPedidoSaiuParaEntrega event) {
         System.out.println(
-                "\nCliente: " + pedido.getCliente().getNome()
-                        + " Id: " + pedido.getCliente().getId()
-                        + "\nSeu pedido de numero: " + pedido.getId()
+                "\nCliente: " + event.getNomeCliente()
+                        + " Id: " + event.getIdCliente()
+                        + "\nSeu pedido de numero: " + event.getIdPedido()
                         + ", saiu para entrega."
                         + "\nDetalhes do entregador:"
-                        + "\nNome: " + pedido.getEntregador().getNome()
-                        + "\nVeiculo: " + pedido.getEntregador().getTipoVeiculo()
-                        + "\nPlaca do veiculo: " + pedido.getEntregador().getPlaca()
-                        + "\nCor do veiculo: " + pedido.getEntregador().getCorDoVeiculo()
+                        + "\nNome: " + event.getNomeEntregador()
+                        + "\nVeiculo: " + event.getTipoVeiculo()
+                        + "\nPlaca do veiculo: " + event.getPlacaVeiculo()
+                        + "\nCor do veiculo: " + event.getCorVeiculo()
         );
     }
 }

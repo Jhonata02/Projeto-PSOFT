@@ -1,6 +1,6 @@
 package com.ufcg.psoft.commerce.services.observer;
 
-import com.ufcg.psoft.commerce.model.Pedido;
+import com.ufcg.psoft.commerce.services.observer.events.EventPedidoEntregue;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -24,11 +24,11 @@ public class FornecedorObserver extends ObserverAdapter{
     }
 
     @Override
-    public void notificaPedidoEntregue(Pedido pedido) {
+    public void notificaPedidoEntregue(EventPedidoEntregue event) {
         System.out.println(
-                "\nFornecedor: " + pedido.getFornecedor().getNome()
-                        + " Id: " + pedido.getFornecedor().getId()
-                        + "\nO pedido de numero: " + pedido.getId()
+                "\nFornecedor: " + event.getNomeFornecedor()
+                        + " Id: " + event.getIdFornecedor()
+                        + "\nO pedido de numero: " + event.getIdPedido()
                         + ", foi entregue ao cliente!"
         );
     }

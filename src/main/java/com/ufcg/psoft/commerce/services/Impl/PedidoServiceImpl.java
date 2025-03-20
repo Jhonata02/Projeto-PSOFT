@@ -6,9 +6,10 @@ import com.ufcg.psoft.commerce.exception.*;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
-import com.ufcg.psoft.commerce.services.observer.ClienteObserver;
-import com.ufcg.psoft.commerce.services.observer.FornecedorObserver;
-import com.ufcg.psoft.commerce.services.observer.Observer;
+import com.ufcg.psoft.commerce.services.observer.*;
+import com.ufcg.psoft.commerce.services.observer.events.EventNenhumEntregadorDisponivel;
+import com.ufcg.psoft.commerce.services.observer.events.EventPedidoEntregue;
+import com.ufcg.psoft.commerce.services.observer.events.EventPedidoSaiuParaEntrega;
 import com.ufcg.psoft.commerce.services.state.PedidoRecebido;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoStrategy;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoCredito;
@@ -209,7 +210,7 @@ public class PedidoServiceImpl implements PedidoService {
 
             if (entregadoresDisponiveis.isEmpty()) {
                 for (Observer clienteObserverInterface: this.clientesObserves) {
-                    clienteObserverInterface.notificaNenhumEntregadorDisponivelParaEntrega(pedido);
+                    clienteObserverInterface.notificaNenhumEntregadorDisponivelParaEntrega(new EventNenhumEntregadorDisponivel(id,pedido.getCliente().getId(),pedido.getCliente().getNome()));
                     throw new CommerceException("Nenhum entregador disponivel");
                 }
             }
@@ -224,7 +225,13 @@ public class PedidoServiceImpl implements PedidoService {
             entregadorRepository.save(entregadorEscolhido);
             pedidoRepository.save(pedido);
         for (Observer clienteObserverInterface: this.clientesObserves) {
-            clienteObserverInterface.notificaPedidoSaiuParaEntrega(pedido);
+            clienteObserverInterface.notificaPedidoSaiuParaEntrega(new EventPedidoSaiuParaEntrega(pedido.getCliente().getId(),
+                    id,
+                    pedido.getCliente().getNome(),
+                    entregadorEscolhido.getNome(),
+                    entregadorEscolhido.getTipoVeiculo(),
+                    entregadorEscolhido.getPlaca(),
+                    entregadorEscolhido.getCorDoVeiculo()));
         }
     }
 
@@ -252,7 +259,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedidoRepository.save(pedido);
         for (Observer fornecedorObserver: this.fornecedoresObservers) {
-            fornecedorObserver.notificaPedidoEntregue(pedido);
+            fornecedorObserver.notificaPedidoEntregue(new EventPedidoEntregue(pedido.getFornecedor().getId(), id, pedido.getFornecedor().getNome()));
         }
     }
 
