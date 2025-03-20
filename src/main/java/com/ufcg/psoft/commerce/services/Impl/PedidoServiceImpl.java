@@ -8,7 +8,6 @@ import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
 import com.ufcg.psoft.commerce.services.state.PedidoRecebido;
-import com.ufcg.psoft.commerce.services.state.StateStatusDoPedido;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoStrategy;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoCredito;
 import com.ufcg.psoft.commerce.repository.*;
@@ -49,8 +48,6 @@ public class PedidoServiceImpl implements PedidoService {
             MetodoPagamento.DEBITO, new PagamentoDebito()
     );
 
-    private StateStatusDoPedido estadoDoPedido = new PedidoRecebido();
-
     private ItemPedido criarItem(Cafe cafe, Pedido pedido) {
         ItemPedido item = new ItemPedido();
         item.setPedido(pedido);
@@ -62,14 +59,10 @@ public class PedidoServiceImpl implements PedidoService {
 
     }
 
-    public void setEstadoDoPedido(StateStatusDoPedido estado){
-        this.estadoDoPedido = estado;
-    }
-
     private Pedido criarPedido(Cliente cliente, String endereco) {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
-        pedido.setStatusPedido(StatusPedido.PEDIDO_RECEBIDO);
+        pedido.setStatusPedido(new PedidoRecebido());
         pedido.setEnderecoDeEntrega(endereco == null || endereco == ""  ? cliente.getEndereco() : endereco);
         pedido.setValorPedido(0.0);
         pedido.setItens(new ArrayList<>());
@@ -183,7 +176,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         mapPagamentoStrategy.get(metodoPagamento).processaPagamento(pedido);
 
-        this.estadoDoPedido.alterarStatus(pedido,this);
+        pedido.alteraStatus(pedido);
         pedidoRepository.save(pedido);
 
     }
@@ -199,7 +192,7 @@ public class PedidoServiceImpl implements PedidoService {
         Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
         Pedido pedido = pedidoRepository.findById(id).orElseThrow(PedidoNaoExisteException::new);
 
-        this.estadoDoPedido.alterarStatus(pedido,this);
+        pedido.alteraStatus(pedido);
 
         pedido.setFornecedor(fornecedor);
         pedidoRepository.save(pedido);
@@ -233,7 +226,7 @@ public class PedidoServiceImpl implements PedidoService {
             Entregador entregadorEscolhido = entregadoresDisponiveis.stream()
                     .min(Comparator.comparingInt(entregador -> entregador.getPedidos().size())).orElseThrow(CommerceException::new);
 
-            this.estadoDoPedido.alterarStatus(pedido,this);
+            pedido.alteraStatus(pedido);
 
             pedido.setEntregador(entregadorEscolhido);
             entregadorEscolhido.getPedidos().add(pedido);
@@ -262,7 +255,7 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = verificaPedidoPertenceAoCliente(id, idCliente, codigoAcesso);
         validarCliente(idCliente,codigoAcesso);
 
-        this.estadoDoPedido.alterarStatus(pedido,this);
+        pedido.alteraStatus(pedido);
 
         pedidoRepository.save(pedido);
         exibeMensagemParaFornecedor(pedido);
@@ -289,7 +282,7 @@ public class PedidoServiceImpl implements PedidoService {
     public void cancelarPedido(Long id, Long idCliente, String codigoAcesso) {
         validarCliente(idCliente,codigoAcesso);
         Pedido pedido = verificaPedidoPertenceAoCliente(id,idCliente,codigoAcesso);
-        if(pedido.getStatusPedido() != StatusPedido.PEDIDO_RECEBIDO && pedido.getStatusPedido() != StatusPedido.PREPARACAO) throw new CommerceException("So pode ser cancelado pedidos que não atigiram o status de Pedido pronto");
+        if(!pedido.getStatusPedido().equals("PEDIDO_RECEBIDO") && !pedido.getStatusPedido().equals("PREPARACAO")) throw new CommerceException("So pode ser cancelado pedidos que não atigiram o status de Pedido pronto");
 
         pedido.getCliente().getPedidos().remove(pedido);
         pedidoRepository.delete(pedido);

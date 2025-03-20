@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
+import com.ufcg.psoft.commerce.services.state.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pedido {
+
+    public void alteraStatus(Pedido pedido) {
+        this.statusPedido.alterarStatus(this);
+    }
 
     @Id
     @JsonProperty("id")
@@ -40,9 +45,9 @@ public class Pedido {
     @JsonProperty("valorPedido")
     private double valorPedido;
 
-    @Enumerated(EnumType.STRING)
     @JsonProperty("statusPedido")
-    private StatusPedido statusPedido;
+    @OneToOne(cascade = CascadeType.ALL)
+    private StateStatusDoPedido statusPedido;
 
     @Enumerated(EnumType.STRING)
     @JsonProperty("metodoPagamento")
