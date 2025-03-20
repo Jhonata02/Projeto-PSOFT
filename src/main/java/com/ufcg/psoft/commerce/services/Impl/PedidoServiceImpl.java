@@ -282,7 +282,7 @@ public class PedidoServiceImpl implements PedidoService {
     public void cancelarPedido(Long id, Long idCliente, String codigoAcesso) {
         validarCliente(idCliente,codigoAcesso);
         Pedido pedido = verificaPedidoPertenceAoCliente(id,idCliente,codigoAcesso);
-        if(!pedido.getStatusPedido().equals("PEDIDO_RECEBIDO") && !pedido.getStatusPedido().equals("PREPARACAO")) throw new CommerceException("So pode ser cancelado pedidos que não atigiram o status de Pedido pronto");
+        if(!pedido.getStatusPedido().toString().equals("PEDIDO_RECEBIDO") && !pedido.getStatusPedido().toString().equals("PREPARACAO")) throw new CommerceException("So pode ser cancelado pedidos que não atigiram o status de Pedido pronto");
 
         pedido.getCliente().getPedidos().remove(pedido);
         pedidoRepository.delete(pedido);
