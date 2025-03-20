@@ -6,7 +6,9 @@ import com.ufcg.psoft.commerce.exception.*;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusEntregador;
-import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
+import com.ufcg.psoft.commerce.services.observer.ClienteObserver;
+import com.ufcg.psoft.commerce.services.observer.FornecedorObserver;
+import com.ufcg.psoft.commerce.services.observer.Observer;
 import com.ufcg.psoft.commerce.services.state.PedidoRecebido;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoStrategy;
 import com.ufcg.psoft.commerce.services.strategy.PagamentoCredito;
@@ -41,6 +43,9 @@ public class PedidoServiceImpl implements PedidoService {
     EntregadorRepository entregadorRepository;
     @Autowired
     ModelMapper modelMapper;
+
+    private List<Observer> fornecedoresObservers = new ArrayList<>();
+    private List<Observer> clientesObserves = new ArrayList<>();
 
     private final Map<MetodoPagamento, PagamentoStrategy> mapPagamentoStrategy = Map.of(
             MetodoPagamento.CREDITO, new PagamentoCredito(),
@@ -138,16 +143,6 @@ public class PedidoServiceImpl implements PedidoService {
         return new PedidoResponseDTO(pedido);
     }
 
-    /**
-    @Override
-    public void remover(Long idPedido, Long idCliente, String codigoAcesso) {
-        validarCliente(idCliente,codigoAcesso);
-        Pedido pedido = verificaPedidoPertenceAoCliente(idPedido,idCliente,codigoAcesso);
-        pedidoRepository.delete(pedido);
-    }
-
-     */
-
     @Override
     public PedidoResponseDTO alterar(Long idPedido, Long idCliente, String codigoAcesso, PedidoPostPutRequestDTO pedidoPostPutRequestDTO) {
         Cliente cliente = validarCliente(idCliente,codigoAcesso);
@@ -200,15 +195,6 @@ public class PedidoServiceImpl implements PedidoService {
         fornecedorRepository.save(fornecedor);
     }
 
-    private void exibeMensagemNenhumEntregadorDisponivel(Pedido pedido) {
-        System.out.println(
-                "\nCliente: " + pedido.getCliente().getNome()
-                        + " Id: " + pedido.getCliente().getId()
-                        + "\nSeu pedido de numero: " + pedido.getId()
-                        + ", não saiu para entrega, pois não tem entregadores disponiveis no momento."
-        );
-    }
-
     @Override
     public void alterarStatusPedidoEmEntrega(Long id, Long idFornecedor, String codigoAcesso) {
             Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
@@ -218,9 +204,14 @@ public class PedidoServiceImpl implements PedidoService {
                     .filter(entregador -> entregador.getStatusEntregador() == StatusEntregador.ATIVO)
                     .collect(Collectors.toList());
 
+            Observer clienteObserver = new ClienteObserver();
+            addClienteObserve(clienteObserver);
+
             if (entregadoresDisponiveis.isEmpty()) {
-                exibeMensagemNenhumEntregadorDisponivel(pedido);
-                throw new CommerceException("Nenhum entregador disponivel");
+                for (Observer clienteObserverInterface: this.clientesObserves) {
+                    clienteObserverInterface.notificaNenhumEntregadorDisponivelParaEntrega(pedido);
+                    throw new CommerceException("Nenhum entregador disponivel");
+                }
             }
 
             Entregador entregadorEscolhido = entregadoresDisponiveis.stream()
@@ -232,22 +223,21 @@ public class PedidoServiceImpl implements PedidoService {
             entregadorEscolhido.getPedidos().add(pedido);
             entregadorRepository.save(entregadorEscolhido);
             pedidoRepository.save(pedido);
-            exibeMensagemParaCliente(pedido);
-
+        for (Observer clienteObserverInterface: this.clientesObserves) {
+            clienteObserverInterface.notificaPedidoSaiuParaEntrega(pedido);
+        }
     }
-    private void exibeMensagemParaCliente(Pedido pedido) {
-        System.out.println(
-                "\nCliente: " + pedido.getCliente().getNome()
-                        + " Id: " + pedido.getCliente().getId()
-                        + "\nSeu pedido de numero: " + pedido.getId()
-                        + ", saiu para entrega."
-                        + "\nDetalhes do entregador:"
-                        + "\nNome: " + pedido.getEntregador().getNome()
-                        + "\nVeiculo: " + pedido.getEntregador().getTipoVeiculo()
-                        + "\nPlaca do veiculo: " + pedido.getEntregador().getPlaca()
-                        + "\nCor do veiculo: " + pedido.getEntregador().getCorDoVeiculo()
 
-        );
+    private void addFornecedorObserver(Observer fornecedorObserver) {
+        if (!this.fornecedoresObservers.contains(fornecedorObserver)) {
+            this.fornecedoresObservers.add(fornecedorObserver);
+        }
+    }
+
+    private void addClienteObserve(Observer clienteObserver) {
+        if (!this.clientesObserves.contains(clienteObserver)) {
+            this.clientesObserves.add(clienteObserver);
+        }
     }
 
     @Override
@@ -255,19 +245,15 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = verificaPedidoPertenceAoCliente(id, idCliente, codigoAcesso);
         validarCliente(idCliente,codigoAcesso);
 
+        Observer forneObserver = new FornecedorObserver();
+        addFornecedorObserver(forneObserver);
+
         pedido.alteraStatus(pedido);
 
         pedidoRepository.save(pedido);
-        exibeMensagemParaFornecedor(pedido);
-    }
-
-    private void exibeMensagemParaFornecedor(Pedido pedido) {
-        System.out.println(
-                "\nFornecedor: " + pedido.getFornecedor().getNome()
-                        + " Id: " + pedido.getFornecedor().getId()
-                        + "\nO pedido de numero: " + pedido.getId()
-                        + ", foi entregue ao cliente!"
-        );
+        for (Observer fornecedorObserver: this.fornecedoresObservers) {
+            fornecedorObserver.notificaPedidoEntregue(pedido);
+        }
     }
 
     private Pedido verificaPedidoPertenceAoFornecedor(Long idPedido, Long idFornecedor, String codigoAcesso) {

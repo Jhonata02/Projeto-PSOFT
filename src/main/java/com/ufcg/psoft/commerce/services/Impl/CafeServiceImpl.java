@@ -135,21 +135,4 @@ public class CafeServiceImpl implements CafeService {
             }
         }
     }
-
-    /**
-    private void exibirMensagem(Cafe cafe) {
-        cafe.getClientesInteressados().stream()
-                .sorted((cliente1, cliente2) -> Boolean.compare(cliente2.isPremium(),cliente1.isPremium()))
-                .forEach(cliente -> {
-                    Cliente clienteCompleto = clienteRepository.findById(cliente.getId()).orElseThrow(ClienteNaoExisteException::new);
-
-                    System.out.println(
-                            "\nCliente: " + cliente.getNome() + " Id: " + cliente.getId()
-                                    + "\n"
-                                    + "O cafe: " + cafe.getNome() + " Id: " + cafe.getId()
-                                    + "\nestá disponivel"
-                    );
-                });
-    }
-     */
 }

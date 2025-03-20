@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.services.observer;
 
 import com.ufcg.psoft.commerce.model.Cafe;
+import com.ufcg.psoft.commerce.model.Pedido;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
 public class ClienteObserver extends ObserverAdapter {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Override
     public boolean equals(Object o) {
@@ -35,5 +36,30 @@ public class ClienteObserver extends ObserverAdapter {
                                     + "\nestá disponivel"
                     );
                 });
+    }
+
+    @Override
+    public void notificaNenhumEntregadorDisponivelParaEntrega(Pedido pedido) {
+        System.out.println(
+                "\nCliente: " + pedido.getCliente().getNome()
+                        + " Id: " + pedido.getCliente().getId()
+                        + "\nSeu pedido de numero: " + pedido.getId()
+                        + ", não saiu para entrega, pois não tem entregadores disponiveis no momento."
+        );
+    }
+
+    @Override
+    public void notificaPedidoSaiuParaEntrega(Pedido pedido) {
+        System.out.println(
+                "\nCliente: " + pedido.getCliente().getNome()
+                        + " Id: " + pedido.getCliente().getId()
+                        + "\nSeu pedido de numero: " + pedido.getId()
+                        + ", saiu para entrega."
+                        + "\nDetalhes do entregador:"
+                        + "\nNome: " + pedido.getEntregador().getNome()
+                        + "\nVeiculo: " + pedido.getEntregador().getTipoVeiculo()
+                        + "\nPlaca do veiculo: " + pedido.getEntregador().getPlaca()
+                        + "\nCor do veiculo: " + pedido.getEntregador().getCorDoVeiculo()
+        );
     }
 }
