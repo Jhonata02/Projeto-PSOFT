@@ -61,7 +61,7 @@ public class Cafe {
 
     @JsonProperty("clientesInteressados")
     @JsonIgnoreProperties("cafesInteresse")
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Cliente> clientesInteressados;
 
 }

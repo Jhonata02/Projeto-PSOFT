@@ -2,22 +2,22 @@ package com.ufcg.psoft.commerce.services.Impl;
 
 import com.ufcg.psoft.commerce.dto.CafePostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
-import com.ufcg.psoft.commerce.dto.ClienteResponseDTO;
 import com.ufcg.psoft.commerce.exception.CafeNaoExisteException;
-import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
 import com.ufcg.psoft.commerce.exception.FornecedorNaoExisteException;
 import com.ufcg.psoft.commerce.model.Cafe;
-import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.Fornecedor;
 import com.ufcg.psoft.commerce.repository.CafeRepository;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import com.ufcg.psoft.commerce.repository.FornecedorRepository;
 import com.ufcg.psoft.commerce.services.CafeService;
+import com.ufcg.psoft.commerce.services.observer.ClienteObserver;
+import com.ufcg.psoft.commerce.services.observer.Observer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +32,8 @@ public class CafeServiceImpl implements CafeService {
     FornecedorRepository fornecedorRepository;
     @Autowired
     ClienteRepository clienteRepository;
+
+    private List<Observer> clientesObserves = new ArrayList<>();
 
     @Override
     public CafeResponseDTO criar(Long idFornecedor, String codigoAcesso, CafePostPutRequestDTO cafePostPutRequestDTO) {
@@ -110,6 +112,12 @@ public class CafeServiceImpl implements CafeService {
         return cafe;
     }
 
+    private void addClienteObserve(Observer clienteObserver) {
+        if (!this.clientesObserves.contains(clienteObserver)) {
+            this.clientesObserves.add(clienteObserver);
+        }
+    }
+
     @Override
     public void alterarDisponibilidadeCafe(Long id, Long idFornecedor, String codigoAcesso) {
         Fornecedor fornecedor = verificaFornecedorValido(idFornecedor,codigoAcesso);
@@ -118,11 +126,17 @@ public class CafeServiceImpl implements CafeService {
         cafe.setDisponivel(cafe.isDisponivel() ? false : true);
         cafeRepository.save(cafe);
 
+        ClienteObserver clienteObserver = new ClienteObserver();
+        addClienteObserve(clienteObserver);
+
         if (cafe.isDisponivel() && !cafe.getClientesInteressados().isEmpty()) {
-            exibirMensagem(cafe);
+            for (Observer clienteObserverInterface: this.clientesObserves) {
+                clienteObserverInterface.notificaCafeDisponivel(cafe);
+            }
         }
     }
 
+    /**
     private void exibirMensagem(Cafe cafe) {
         cafe.getClientesInteressados().stream()
                 .sorted((cliente1, cliente2) -> Boolean.compare(cliente2.isPremium(),cliente1.isPremium()))
@@ -137,4 +151,5 @@ public class CafeServiceImpl implements CafeService {
                     );
                 });
     }
+     */
 }

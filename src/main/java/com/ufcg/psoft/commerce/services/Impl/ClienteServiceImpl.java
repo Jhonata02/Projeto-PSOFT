@@ -126,6 +126,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = verificaClienteValido(id,codigoAcesso);
         Cafe cafe = cafeRepository.findById(idCafe).orElseThrow(CafeNaoExisteException::new);
         if (cafe.isDisponivel()) throw new CommerceException("Só pode demonstrar interesse em cafés indisponiveis");
+        if (cafe.getClientesInteressados().contains(cliente)) throw new CommerceException("Você já demonstrou interesse nesse cafe");
         cafe.getClientesInteressados().add(cliente);
         cafeRepository.save(cafe);
         cliente.getCafesInteresse().add(cafe);
@@ -155,7 +156,7 @@ public class ClienteServiceImpl implements ClienteService {
     private List<PedidoResponseDTO> exibirHistoricoPedidos(Cliente cliente) {
         return cliente.getPedidos().stream()
                 .sorted(Comparator
-                        .comparing((Pedido pedido) -> pedido.getStatusPedido() == StatusPedido.PEDIDO_ENTREGUE)
+                        .comparing((Pedido pedido) -> pedido.getStatusPedido().toString().equals("PEDIDO ENTREGUE"))
                         .thenComparing(Pedido::getId, Comparator.reverseOrder()))
                 .map(p -> new PedidoResponseDTO(p)).toList();
     }
@@ -170,7 +171,7 @@ public class ClienteServiceImpl implements ClienteService {
     public List<PedidoResponseDTO> exibirHistoricoPedidosComFiltro(Long id, String codigoAcesso, StatusPedido statusPedido) {
         Cliente cliente = verificaClienteValido(id, codigoAcesso);
         return cliente.getPedidos().stream()
-                .filter(pedido -> pedido.getStatusPedido() == statusPedido) // Filtra pelo status desejado
+                .filter(pedido -> pedido.getStatusPedido().toString().equals(statusPedido.toString())) // Filtra pelo status desejado
                 .sorted(Comparator.comparing(Pedido::getId, Comparator.reverseOrder()))// Ordena do mais recente para o mais antigo
                 .map(pedido -> new PedidoResponseDTO(pedido))
                 .toList();
