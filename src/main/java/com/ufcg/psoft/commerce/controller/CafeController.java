@@ -1,10 +1,8 @@
 package com.ufcg.psoft.commerce.controller;
 
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.ufcg.psoft.commerce.dto.CafePostPutRequestDTO;
-import com.ufcg.psoft.commerce.dto.CafeResponseDTO;
-import com.ufcg.psoft.commerce.services.CafeService;
+import com.ufcg.psoft.commerce.services.cafe.CafeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

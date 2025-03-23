@@ -1,10 +1,9 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.FornecedorPostPutRequestDTO;
-import com.ufcg.psoft.commerce.model.Cafe;
-import com.ufcg.psoft.commerce.services.CafeService;
-import com.ufcg.psoft.commerce.services.FornecedorService;
-import com.ufcg.psoft.commerce.services.PedidoService;
+import com.ufcg.psoft.commerce.services.cafe.CafeService;
+import com.ufcg.psoft.commerce.services.fornecedor.FornecedorService;
+import com.ufcg.psoft.commerce.services.pedido.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

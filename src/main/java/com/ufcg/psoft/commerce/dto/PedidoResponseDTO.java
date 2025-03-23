@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.model.Enums.MetodoPagamento;
 import com.ufcg.psoft.commerce.model.Enums.StatusPedido;
-import com.ufcg.psoft.commerce.services.state.StateStatusDoPedido;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,7 +40,7 @@ public class PedidoResponseDTO {
     private double valorPedido;
 
     @JsonProperty("statusPedido")
-    private String statusPedido;
+    private StatusPedido statusPedido;
 
     @JsonProperty("metodoPagamento")
     private MetodoPagamento metodoPagamento;
@@ -62,7 +61,7 @@ public class PedidoResponseDTO {
         //this.itens = pedido.getItens();
         this.enderecoDeEntrega = pedido.getEnderecoDeEntrega();
         this.valorPedido = Math.round(pedido.getValorPedido()*100.00)/100.00;
-        this.statusPedido = pedido.getStatusPedido().toString();
+        this.statusPedido = pedido.getStatusPedido();
         this.metodoPagamento = pedido.getMetodoPagamento();
         this.clienteId = pedido.getCliente().getId();
         this.entregador = pedido.getEntregador() != null ? new EntregadorResponseDTO(pedido.getEntregador()) : null;
